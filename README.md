@@ -1,0 +1,4 @@
+jn
+==
+
+Simple Bash journal
