@@ -8,17 +8,51 @@
 # Configuration
 #----------------------------------------------------------------------/
 EDITOR=vim
-FILETYPE=".md"
+FILETYPE="md"
+JFILE="journal.$FILETYPE"
+VERBOSE=1
+PAGER=less
 
 #----------------------------------------------------------------------/
 # Functions
 #----------------------------------------------------------------------/
+function log() {
+    if [[ $VERBOSE -eq 1 ]]; then
+        echo $@
+    fi
+}
+
+function check_and_setup_jfile() {
+    if [[ ! -f $JFILE ]]; then
+        echo "Warning: Journal file doesn't exist"
+        echo "Creating journal file -> $JFILE"
+        touch $JFILE
+    fi
+}
+
 function read_journal() {
-    echo "Reading journal"
+    log "Reading journal file -> $JFILE"
+    tac $JFILE | $PAGER
 }
 
 function write_journal() {
-    echo "Writing journal"
+    # Get timestamp
+    timestamp=`date`
+    log "Creating new journal entry"
+    # Create and edit a tmp file
+    tmpfile="/tmp/$(basename $0).$$.$FILETYPE"
+    $EDITOR $tmpfile
+    # Append tmpfile to journal
+    if [[ -s $tmpfile ]]; then
+        echo "" >> $JFILE
+        cat $tmpfile >> $JFILE
+        echo "-----------------------------------------------" >> $JFILE
+        echo "Date: $timestamp" >> $JFILE
+        echo "-----------------------------------------------" >> $JFILE
+        log "Journal entry written"
+    else
+        log "I'm not going to save an empty entry, you have to write something!"
+    fi
 }
 
 # Print a usage / help message
@@ -30,16 +64,22 @@ Usage: jn -[mode]
 Modes:
     -r      -> Read journal
     -w      -> Write journal
+    -v      -> Enable verbose output
     -u|h    -> Print usage/help"
 }
+
 #----------------------------------------------------------------------/
 # Main
 #----------------------------------------------------------------------/
-while getopts "rwuh" MODE; do
+# Check that jfile exists, if not, create it
+check_and_setup_jfile
+while getopts "rwvuh" MODE; do
     case $MODE in
         r)      read_journal
             ;;
         w)      write_journal
+            ;;
+        v)      VERBOSE=1
             ;;
         u|h)    usage
                 exit 0
@@ -49,5 +89,9 @@ while getopts "rwuh" MODE; do
             ;;
     esac
 done
-
+# By default, write a new journal entry if no parameters are passed
+if [[ $OPTIND -eq 1 ]]; then
+   write_journal 
+fi
+shift $((OPTIND - 1))
 
