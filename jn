@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# Simple Bash Journal
+#
+# Allows the user to write and read journal entries.
+
+#----------------------------------------------------------------------/
+# Configuration
+#----------------------------------------------------------------------/
+EDITOR=vim
+FILETYPE=".md"
+
+#----------------------------------------------------------------------/
+# Functions
+#----------------------------------------------------------------------/
+function read_journal() {
+    echo "Reading journal"
+}
+
+function write_journal() {
+    echo "Writing journal"
+}
+
+# Print a usage / help message
+function usage() {
+    echo "
+jn - A simple journal
+
+Usage: jn -[mode]      
+Modes:
+    -r      -> Read journal
+    -w      -> Write journal
+    -u|h    -> Print usage/help"
+}
+#----------------------------------------------------------------------/
+# Main
+#----------------------------------------------------------------------/
+while getopts "rwuh" MODE; do
+    case $MODE in
+        r)      read_journal
+            ;;
+        w)      write_journal
+            ;;
+        u|h)    usage
+                exit 0
+            ;;
+        *)      echo "Unrecognised option"
+                exit 1
+            ;;
+    esac
+done
+
+
