@@ -9,7 +9,8 @@
 #----------------------------------------------------------------------/
 EDITOR=vim
 FILETYPE="md"
-JFILE="journal.$FILETYPE"
+JDIR=~/.journal
+JFILE=$JDIR/journal.$FILETYPE
 VERBOSE=1
 PAGER=less
 
@@ -23,9 +24,13 @@ function log() {
 }
 
 function check_and_setup_jfile() {
+    if [[ ! -d $JDIR ]]; then
+        log "Making journal dir -> $JDIR"
+        mkdir -p $JDIR
+    fi
     if [[ ! -f $JFILE ]]; then
-        echo "Warning: Journal file doesn't exist"
-        echo "Creating journal file -> $JFILE"
+        log "Warning: Journal file doesn't exist"
+        log "Creating journal file -> $JFILE"
         touch $JFILE
     fi
 }
