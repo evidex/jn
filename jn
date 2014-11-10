@@ -13,6 +13,7 @@ JDIR=~/.journal
 JFILE=$JDIR/journal.$FILETYPE
 VERBOSE=1
 PAGER=less
+GPG=1
 
 #----------------------------------------------------------------------/
 # Functions
@@ -28,7 +29,7 @@ function check_and_setup_jfile() {
         log "Making journal dir -> $JDIR"
         mkdir -p $JDIR
     fi
-    if [[ ! -f $JFILE ]]; then
+    if [[ ! -f $JFILE && ! -f $JFILE.gpg ]]; then
         log "Warning: Journal file doesn't exist"
         log "Creating journal file -> $JFILE"
         touch $JFILE
@@ -37,7 +38,11 @@ function check_and_setup_jfile() {
 
 function read_journal() {
     log "Reading journal file -> $JFILE"
-    tac $JFILE | $PAGER
+    if [[ $GPG -eq 1 ]]; then
+        gpg -d $JFILE.gpg | tac | $PAGER
+    else
+        tac $JFILE | $PAGER
+    fi
 }
 
 function write_journal() {
@@ -58,6 +63,11 @@ function write_journal() {
     else
         log "I'm not going to save an empty entry, you have to write something!"
     fi
+    if [[ $GPG -eq 1 ]]; then
+        log "Encrypting file"
+        gpg -c $JFILE
+        rm $JFILE
+    fi
 }
 
 # Print a usage / help message
@@ -65,7 +75,7 @@ function usage() {
     echo "
 jn - A simple journal
 
-Usage: jn -[mode]      
+Usage: jn [mode]      
 Modes:
     -r      -> Read journal
     -w      -> Write journal
