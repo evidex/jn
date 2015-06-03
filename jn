@@ -13,7 +13,7 @@ JDIR=~/.journal
 JFILE=$JDIR/journal.$FILETYPE
 VERBOSE=1
 PAGER=less
-GPG=1
+GPG=0
 
 #----------------------------------------------------------------------/
 # Functions
@@ -55,13 +55,14 @@ function write_journal() {
     # Append tmpfile to journal
     if [[ -s $tmpfile ]]; then
         echo "" >> $JFILE
-        cat $tmpfile >> $JFILE
+        tac $tmpfile >> $JFILE
         echo "-----------------------------------------------" >> $JFILE
         echo "Date: $timestamp" >> $JFILE
         echo "-----------------------------------------------" >> $JFILE
         log "Journal entry written"
     else
         log "I'm not going to save an empty entry, you have to write something!"
+        exit
     fi
     if [[ $GPG -eq 1 ]]; then
         log "Encrypting file"
@@ -80,7 +81,7 @@ Modes:
     -r      -> Read journal
     -w      -> Write journal
     -v      -> Enable verbose output
-    -u|h    -> Print usage/help"
+    -u|h    -> Print usage/help\n"
 }
 
 #----------------------------------------------------------------------/
